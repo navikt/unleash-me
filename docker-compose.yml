@@ -1,0 +1,53 @@
+version: "3.9"
+services:
+  web:
+    image: unleashorg/unleash-server
+    ports:
+      - "4242:4242"
+    environment:
+      # This points Unleash to its backing database (defined in the `db` section below)
+      DATABASE_URL: "postgres://postgres:unleash@db/postgres"
+      # Disable SSL for database connections. @chriswk: why do we do this?
+      DATABASE_SSL: "false"
+      # Initialize Unleash with a default set of client API tokens. To
+      # initialize Unleash with multiple tokens, separate them with a
+      # comma (`token1,token2`).
+      #
+      # These tokens can be used by the Proxy or by *server-side* client
+      # SDKs. For front-end client SDKs that talk to the Proxy, use a
+      # key from `proxy.environment.UNLEASH_PROXY_CLIENT_KEYS`
+      # instead.
+      INIT_CLIENT_API_TOKENS: "default:development.unleash-insecure-api-token"
+      # Changing log levels:
+      # LOG_LEVEL: "debug"
+    depends_on:
+      - db
+        #command: ["./wait-for", "db:5432", "--", "node", "index.js"]
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:4242/health || exit 1
+      interval: 1s
+      timeout: 1m
+      retries: 5
+      start_period: 15s
+  db:
+    expose:
+      - "5432"
+    image: postgres:14
+    environment:
+      # create a database called `db`
+      POSTGRES_DB: "db"
+      # trust incoming connections blindly (DON'T DO THIS IN PRODUCTION!)
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "--username=postgres",
+          "--host=127.0.0.1",
+          "--port=5432",
+        ]
+      interval: 2s
+      timeout: 1m
+      retries: 5
+      start_period: 10s
