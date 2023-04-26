@@ -14,8 +14,9 @@ const userId = "BJORN";
 
 const env = ensureEnv({
   unleashEnvironment: "UNLEASH_ENVIRONMENT",
-  port: "PORT"
 });
+
+const PORT = process.env['PORT'] ?? 8080
 
 
 const createServer = async () => {
@@ -50,7 +51,7 @@ const createServer = async () => {
 };
 
 createServer().then(({ app }) => {
-  app.listen(env.port, () => {
-    console.log(`Server listening on port ${env.port}`);
+  app.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
   });
 });
