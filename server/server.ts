@@ -27,8 +27,12 @@ const createServer = async () => {
   app.use(express.json());
 
   app.get("/api/features", async (_req, res) => {
-    const features = await getFeaturesForUser(userId, env.unleashEnvironment);
-    res.send(features);
+    try{
+      const features = await getFeaturesForUser(userId, env.unleashEnvironment);
+      res.send(features);
+    } catch (e) {
+      res.status(500).send({error: 'Could not connect to Unleash', reason: e})
+    }
   });
 
   app.post("/api/features", async (req, res) => {
