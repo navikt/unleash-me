@@ -6,7 +6,7 @@ import {
   IStragegy,
   IStragegyUserWithId,
 } from "./types";
-import { IUserFeature } from "../types.js";
+import { IUserFeature } from "unleash-me-common/types.js";
 dotenv.config();
 
 const env = ensureEnv({
@@ -91,7 +91,7 @@ const createUserFeature =
       enabled: activeUsers.includes(userId),
       stategyId: userWithIdStrategy.id,
       description: feature.description,
-      type: feature.type,
+      type: feature.type
     };
   };
 

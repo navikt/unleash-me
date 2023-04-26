@@ -14,7 +14,7 @@ Tilgjengeliggjøre feature toggles fra unleash som self-service
 1. Kjør `npm install` som installerer avhengigheter
 1. Sett opp miljøvariabler
 
-   - Lag fil med navn `.env`
+   - Lag fil med navn `.env` i `server/` mappen
    - Sett opp miljøvariabler i `.env` fil
 
    ```env
@@ -28,7 +28,7 @@ Tilgjengeliggjøre feature toggles fra unleash som self-service
 
    - Start unleash: `docker-compose up` (kan nås på http://localhost:4242, user: admin pw:unleash4all)
    - Start backend: `npm run start:server` (starter på http://localhost:8080)
-   - Start frontend `npm run dev` (kan nås på localhost:5173)
+   - Start frontend `npm run start:client` (kan nås på localhost:5173)
 
 1. Lag ny toggle http://localhost:4242/projects/default/create-toggle
    - Toggle type: _RELEASE_ eller _KILL SWITCH_

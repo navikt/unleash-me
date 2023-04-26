@@ -1,5 +1,5 @@
 import { useEffect, useReducer } from "react";
-import { IUserFeature } from "../types";
+import { IUserFeature } from "unleash-me-common/types";
 import Toggle from "./Toggle";
 
 enum LoadingState {
@@ -30,7 +30,7 @@ const Toggles = ({}) => {
 
   useEffect(() => {
     if (state.loadingState === LoadingState.SHOULD_FETCH) {
-      fetch("http://localhost:8080/features")
+      fetch("/api/features")
         .then((resp: Response) => {
           if (resp.ok) {
             return resp.json();
@@ -49,7 +49,7 @@ const Toggles = ({}) => {
     stategyId: string,
     enabled: boolean
   ) => {
-    return fetch("http://localhost:8080/features", {
+    return fetch("/api/features", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

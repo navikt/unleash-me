@@ -3,5 +3,5 @@ export interface IUserFeature {
   description: string;
   name: string;
   stategyId: string;
-  type: 'kill-switch' | 'release';
+  type: "release" | "experiment" | "operational" | "kill-switch" | "permission";
 }

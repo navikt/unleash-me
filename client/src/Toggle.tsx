@@ -1,12 +1,13 @@
 import { Switch } from "@navikt/ds-react";
 import { useMemo, useState } from "react";
+import { IUserFeature } from "unleash-me-common/types";
 
 interface IProps {
   enabled: boolean;
   name: string;
   stategyId: string;
   children: string;
-  type: 'kill-switch' | 'release'
+  type: IUserFeature['type']
   onChangeFeature: (
     featureName: string,
     stategyId: string,
@@ -34,7 +35,7 @@ const Toggle: React.FC<IProps> = ({
   const checked = useMemo(() => {
     if(type === 'release') {
       return enabled
-    } else {
+    } else if(type === 'kill-switch') {
       return !enabled
     }
   }, [enabled]) 

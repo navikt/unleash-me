@@ -1,5 +1,15 @@
 version: "3.9"
 services:
+  self-service:
+    build: .
+    ports:
+      - 8081:8081
+    env_file:
+      - server/.env
+    environment:
+      UNLEASH_SERVER: "http://web:4242"
+      PORT: 8081
+
   web:
     image: unleashorg/unleash-server
     ports:
