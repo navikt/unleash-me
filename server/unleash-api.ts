@@ -13,8 +13,7 @@ const env = ensureEnv({
   unleashToken: "UNLEASH_TOKEN",
   unleashServer: "UNLEASH_SERVER",
   unleashProject: "UNLEASH_PROJECT",
-  alphaTag: "UNLEASH_ALPHA_TAG",
-  betaTag: "UNLEASH_BETA_TAG",
+  unleashTag: "UNLEASH_TAG",
 });
 
 const defaultHeaders = {
@@ -63,12 +62,12 @@ export const getStrategy = async (
 };
 
 const filterFeatures =
-  (enviroment: string, tags: string[]) =>
+  (enviroment: string, unleashTag: string) =>
   (feature: IFeature): boolean => {
     return (
       !feature.stale &&
       !!feature.tags &&
-      feature.tags.some((tag) => tags.includes(tag.value)) &&
+      feature.tags.some((tag) => tag.value === unleashTag) &&
       feature.environments
         .filter((env) => env.name === enviroment)
         .filter((env) => env.enabled).length > 0
@@ -92,6 +91,7 @@ const createUserFeature =
       enabled: activeUsers.includes(userId),
       stategyId: userWithIdStrategy.id,
       description: feature.description,
+      type: feature.type,
     };
   };
 
@@ -101,7 +101,7 @@ export const getFeaturesForUser = async (
 ) => {
   const features = await getAllFeaturesForProject()
     .then((features) =>
-      features.filter(filterFeatures(enviroment, [env.alphaTag, env.betaTag]))
+      features.filter(filterFeatures(enviroment, env.unleashTag))
     )
     .then((features) =>
       Promise.all(features.map((feat) => getFeature(feat.name)))

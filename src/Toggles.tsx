@@ -80,6 +80,7 @@ const Toggles = ({}) => {
           stategyId={feature.stategyId}
           name={feature.name}
           onChangeFeature={updateToggle}
+          type={feature.type}
         >
           {feature.description}
         </Toggle>

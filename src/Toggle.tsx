@@ -1,11 +1,12 @@
 import { Switch } from "@navikt/ds-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 interface IProps {
   enabled: boolean;
   name: string;
   stategyId: string;
   children: string;
+  type: 'kill-switch' | 'release'
   onChangeFeature: (
     featureName: string,
     stategyId: string,
@@ -18,6 +19,7 @@ const Toggle: React.FC<IProps> = ({
   name,
   stategyId,
   children,
+  type,
   onChangeFeature,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -28,8 +30,16 @@ const Toggle: React.FC<IProps> = ({
       setIsLoading(false)
     );
   };
+
+  const checked = useMemo(() => {
+    if(type === 'release') {
+      return enabled
+    } else {
+      return !enabled
+    }
+  }, [enabled]) 
   return (
-    <Switch loading={isLoading} defaultChecked={enabled} onClick={onClick}>
+    <Switch loading={isLoading} defaultChecked={checked} onClick={onClick}>
       {children}
     </Switch>
   );
