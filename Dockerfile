@@ -17,7 +17,6 @@ FROM node:18 AS runtime
 WORKDIR /app
 COPY --from=builder /app/server/dist /app
 COPY --from=builder /app/server/package.json /app
-COPY --from=builder /app/server/.env /app
 COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/client/dist /app/public
 CMD ["node", "/app/server.js"]
