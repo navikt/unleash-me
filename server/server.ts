@@ -47,6 +47,10 @@ const createServer = async () => {
       });
   });
 
+  app.get('/health', (req, res) => {
+    res.sendStatus(200)
+  })
+
   app.get('/*', (req, res) => {
     res.sendFile(DIR_NAME + 'public/index.html')
   })
