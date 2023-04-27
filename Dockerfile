@@ -1,4 +1,4 @@
-FROM node:18 AS builder
+FROM node:18-alpine AS builder
 WORKDIR /app
 
 COPY package.json .
@@ -13,7 +13,7 @@ RUN ls
 RUN npm ci
 RUN npm run build
 
-FROM node:18 AS runtime
+FROM node:18-alpine AS runtime
 WORKDIR /app
 COPY --from=builder /app/server/dist /app
 COPY --from=builder /app/server/package.json /app
