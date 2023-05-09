@@ -2,6 +2,7 @@ ingresses:
   - "https://unleash-me-{{ environment }}.intern.dev.nav.no"
 namespace: pensjon-saksbehandling
 environment: dev
+team: pensjon-saksbehandling
 env_variables:
   - name: UNLEASH_ENVIRONMENT
     value: development
