@@ -1,0 +1,51 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: unleash-me-{{ environment }}
+  namespace: {{ namespace }}
+annotations:
+  nginx.ingress.kubernetes.io/configuration-snippet: |
+    more_set_headers "X-Forwarded-For $http_x_forwarded_for";
+spec:
+  image: "ghcr.io/navikt/unleash-me:{{ image_tag }}"
+  port: 8080
+  ingresses:
+  {{#each ingresses as |url|}}
+    - {{url}}
+  {{/each}}
+  liveness:
+    path: "/health"
+    initialDelay: 20
+    timeout: 60
+  readiness:
+    path: "/health"
+    initialDelay: 20
+    timeout: 60
+  envFrom:
+    - secret: unleash-me
+  env:
+  {{#each env_variables as |variable|}}
+    {{variable}}
+  {{/each}}
+  azure:
+    application:
+      allowAllUsers: true
+      enabled: true
+      replyURLs:
+        - "http://localhost:8080/auth/callback"
+        - "http://localhost:8081/auth/callback"
+      claims:
+        extra:
+          - "NAVident"
+          - "azp_name"
+  webproxy: true
+  replicas:
+    min: 2
+    max: 4
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi

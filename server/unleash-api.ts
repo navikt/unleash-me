@@ -11,7 +11,7 @@ dotenv.config();
 
 const env = ensureEnv({
   unleashToken: "UNLEASH_TOKEN",
-  unleashServer: "UNLEASH_SERVER",
+  unleashApi: "UNLEASH_API",
   unleashProject: "UNLEASH_PROJECT",
   unleashTag: "UNLEASH_TAG",
 });
@@ -22,10 +22,8 @@ const defaultHeaders = {
 };
 
 const projectFetch = async (endpoint: string, opts: RequestInit = {}) => {
-  const url = `${env.unleashServer}/api/admin/projects/${env.unleashProject}${endpoint}`;
+  const url = `${env.unleashApi}/admin/projects/${env.unleashProject}${endpoint}`;
   const headers = { headers: defaultHeaders, ...opts };
-  // console.log("Requesting", url);
-  // console.log("with headers", headers);
   return await fetch(url, headers).then((resp) => {
     if (resp.ok) {
       return resp.json();

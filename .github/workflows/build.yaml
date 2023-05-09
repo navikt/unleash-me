@@ -29,3 +29,16 @@ jobs:
           tags: |
             ${{ env.docker_image }}:${{ github.sha }}
             ${{ env.docker_image }}:latest
+  deploy:
+    name: Deploy pensjons saksbehandling dev GCP
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: nais/deploy/actions/deploy@v1
+      env:
+        APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+        CLUSTER: dev-gcp
+        RESOURCE: .nais/pensjon-saksbehandling-dev.yaml
+        VAR: image_tag=${{ github.sha }}
