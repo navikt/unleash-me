@@ -1,10 +1,10 @@
 apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
-  name: "unleash-me-{{environment}}"
-  namespace: "{{namespace}}"
+  name: unleash-me-{{{environment}}}
+  namespace: {{{namespace}}}
   labels:
-    team: "{{team}}"
+    team: {{{team}}}
 annotations:
   nginx.ingress.kubernetes.io/configuration-snippet: |
     more_set_headers "X-Forwarded-For $http_x_forwarded_for";
@@ -12,9 +12,9 @@ spec:
   image: "ghcr.io/navikt/unleash-me:{{ image_tag }}"
   port: 8080
   ingresses:
-  {{#each ingresses as |url|}}
+    {{#each ingresses as |url|}}
     - {{url}}
-  {{/each}}
+      {{/each}}
   liveness:
     path: "/health"
     initialDelay: 20
@@ -26,9 +26,9 @@ spec:
   envFrom:
     - secret: unleash-me
   env:
-  {{#each env_variables as |variable|}}
+    {{#each env_variables as |variable|}}
     {{variable}}
-  {{/each}}
+    {{/each}}
   azure:
     application:
       allowAllUsers: true
