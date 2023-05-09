@@ -42,3 +42,4 @@ jobs:
         CLUSTER: dev-gcp
         RESOURCE: .nais/pensjon-saksbehandling-dev.yaml
         VAR: image_tag=${{ github.sha }}
+        TEAM: pensjon-saksbehandling
