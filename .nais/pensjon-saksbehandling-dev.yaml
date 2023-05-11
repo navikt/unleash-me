@@ -6,5 +6,6 @@ team: pensjon-saksbehandling
 env_variables: {
     UNLEASH_ENVIRONMENT: "development",
     UNLEASH_TAG: "unleash-me",
-    UNLEASH_API: "https://teampensjon-unleash-api.nav.cloud.nais.io/api"
+    UNLEASH_API: "https://teampensjon-unleash-api.nav.cloud.nais.io/api",
+    UNLEASH_PROJECT: "default"
 }
