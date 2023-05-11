@@ -40,6 +40,8 @@ jobs:
       env:
         APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
         CLUSTER: dev-gcp
-        RESOURCE: .nais/pensjon-saksbehandling-dev.yaml
+        RESOURCE: .nais/nais.yaml
         VAR: image_tag=${{ github.sha }}
+        VARS: .nais/pensjon-saksbehandling-dev.yaml
+
         TEAM: pensjon-saksbehandling
