@@ -1,12 +1,10 @@
 ingresses:
-  - "https://unleash-me-{{environment}}.intern.dev.nav.no"
+  - "https://unleash-me-dev.intern.dev.nav.no"
 namespace: pensjon-saksbehandling
 environment: dev
 team: pensjon-saksbehandling
-env_variables:
-  - name: UNLEASH_ENVIRONMENT
-    value: development
-  - name: UNLEASH_TAG
-    value: unleash-me
-  - name: UNLEASH_API
-    value: https://teampensjon-unleash-api.nav.cloud.nais.io/api
+env_variables: {
+    UNLEASH_ENVIRONMENT: "development",
+    UNLEASH_TAG: "unleash-me",
+    UNLEASH_API: "https://teampensjon-unleash-api.nav.cloud.nais.io/api"
+}
