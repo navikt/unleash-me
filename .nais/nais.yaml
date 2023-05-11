@@ -31,16 +31,18 @@ spec:
     value: {{this}}
   {{/each}}
   azure:
-    application:
-      allowAllUsers: true
-      enabled: true
-      replyURLs:
-        - "http://localhost:8080/auth/callback"
-        - "http://localhost:8081/auth/callback"
-      claims:
-        extra:
-          - "NAVident"
-          - "azp_name"
+    sidecar:
+      autoLogin: true
+    #    application:
+    #      allowAllUsers: true
+    #      enabled: true
+    #      replyURLs:
+    #        - "http://localhost:8080/auth/callback"
+    #        - "http://localhost:8081/auth/callback"
+    #      claims:
+    #        extra:
+    #          - "NAVident"
+    #          - "azp_name"
   webproxy: true
   replicas:
     min: 2

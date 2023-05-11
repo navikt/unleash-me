@@ -43,6 +43,7 @@ const createServer = async () => {
         res.send(data);
       })
       .catch((err) => {
+        console.log(err)
         res.status(500).send(err);
       });
   });
@@ -52,7 +53,7 @@ const createServer = async () => {
   })
 
   app.get('/*', (req, res) => {
-    res.sendFile(DIR_NAME + 'public/index.html')
+    res.sendFile(DIR_NAME + '/public/index.html')
   })
 
   return { app };
