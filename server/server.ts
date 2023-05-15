@@ -12,7 +12,7 @@ const DIR_NAME = path.resolve();
 
 const env = ensureEnv({
   unleashEnvironment: "UNLEASH_ENVIRONMENT",
-  wonderwallEncryptionKey: "WONDERWALL_ENCRYPTION_KEY"
+  azureJwk: "AZURE_APP_JWK"
 });
 
 const PORT = process.env['PORT'] ?? 8080
@@ -28,7 +28,7 @@ const userMiddleware: RequestHandler = (req, res, next) => {
   if(!authHeader) {
     return res.status(403).send('missing jwt token')
   } else {
-    jwt.verify(authHeader, env.wonderwallEncryptionKey, (err, decoded: IJwt) => {
+    jwt.verify(authHeader, env.azureJwk, (err, decoded: IJwt) => {
       if(err) return res.status(403).send(err)
 
       const ident = decoded.NAVident

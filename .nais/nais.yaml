@@ -25,7 +25,7 @@ spec:
     timeout: 60
   envFrom:
     - secret: unleash-me
-    - secret: "{{ wonderwall_secret }}"
+    - secret: "{{ azure_secret }}"
   env:
   {{#each env_variables}}
   - name: {{@key}}
