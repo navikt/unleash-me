@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import path from 'path'
 import { ensureEnv } from "./utils.js";
 import jwt from 'jsonwebtoken'
+import jwks from 'jwks-rsa'
 
 dotenv.config();
 
@@ -12,32 +13,50 @@ const DIR_NAME = path.resolve();
 
 const env = ensureEnv({
   unleashEnvironment: "UNLEASH_ENVIRONMENT",
-  azureJwk: "AZURE_APP_JWK"
+  azureTennant: "AZURE_APP_TENANT_ID"
 });
 
 const PORT = process.env['PORT'] ?? 8080
 
 
-interface IJwt extends jwt.JwtPayload {
-  name: string;
+interface IJwtPayload extends jwt.JwtPayload {
   NAVident: string;
+  name: string;
+}
+interface IJwt {
+    header: jwt.JwtHeader;
+    payload: IJwtPayload;
+    signature: string;
 }
 
-const userMiddleware: RequestHandler = (req, res, next) => {
+const jwkClient = jwks({
+  jwksUri: `https://login.microsoftonline.com/${env.azureTennant}/discovery/v2.0/keys`
+})
+
+const userMiddleware: RequestHandler = async (req, res, next) => {
   const authHeader = req.headers.authorization
   if(!authHeader) {
     return res.status(403).send('missing jwt token')
   } else {
-    jwt.verify(authHeader, env.azureJwk, (err, decoded: IJwt) => {
-      if(err) return res.status(403).send(err)
+    const token = authHeader.split(' ')[1]
+    const decodedToken = jwt.decode(token, { complete: true }) as IJwt
+    const key = await jwkClient.getSigningKey(decodedToken.header.kid)
+    const sigingkey = key.getPublicKey()
 
-      const ident = decoded.NAVident
+    console.log(`NavId: ${decodedToken.payload.NAVident}`)
+
+    jwt.verify(token, sigingkey, (err) => {
+      if(err) return res.status(403).send(err)
+    })
+
+    if(decodedToken) {
+      const ident = decodedToken.payload.NAVident
       if(!ident) return res.status(403).send('Missing NAVIdent')
       res.locals.NavIdent  = ident
 
       console.log(`User recieved: ${ident}`)
       next()
-    })
+    }
   }
 }
 
@@ -49,7 +68,7 @@ const createServer = async () => {
   app.use(cors());
   app.use(express.json());
 
-  app.get("/api/features", userMiddleware, async (req, res) => {
+  app.get("/api/features", userMiddleware, async (_req, res) => {
     try{
       const features = await getFeaturesForUser(res.locals.NavIdent, env.unleashEnvironment);
       res.send(features);
