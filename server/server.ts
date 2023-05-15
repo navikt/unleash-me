@@ -1,6 +1,6 @@
 import { getFeaturesForUser, setToggle } from "./unleash-api.js";
 import cors from "cors";
-import express from "express";
+import express, { RequestHandler } from "express";
 import dotenv from "dotenv";
 import path from 'path'
 import { ensureEnv } from "./utils.js";
@@ -19,6 +19,16 @@ const env = ensureEnv({
 const PORT = process.env['PORT'] ?? 8080
 
 
+const userMiddleware: RequestHandler = (req, res, next) => {
+  const authHeader = req.headers.authorization
+  console.log(authHeader)
+  if(!authHeader) {
+    res.send(403)
+  }
+  next()
+}
+
+
 const createServer = async () => {
   const app = express();
   app.use(express.static('public'))
@@ -26,7 +36,7 @@ const createServer = async () => {
   app.use(cors());
   app.use(express.json());
 
-  app.get("/api/features", async (_req, res) => {
+  app.get("/api/features", userMiddleware, async (req, res) => {
     try{
       const features = await getFeaturesForUser(userId, env.unleashEnvironment);
       res.send(features);
@@ -35,7 +45,7 @@ const createServer = async () => {
     }
   });
 
-  app.post("/api/features", async (req, res) => {
+  app.post("/api/features", userMiddleware, async (req, res) => {
     const { featureName, strategyId, enabled } = req.body;
 
     setToggle(env.unleashEnvironment, userId, featureName, strategyId, enabled)
