@@ -4,28 +4,41 @@ import express, { RequestHandler } from "express";
 import dotenv from "dotenv";
 import path from 'path'
 import { ensureEnv } from "./utils.js";
+import jwt from 'jsonwebtoken'
 
 dotenv.config();
 
 const DIR_NAME = path.resolve();
 
-// TODO: Testdata, remove
-const userId = "BJORN";
-
 const env = ensureEnv({
   unleashEnvironment: "UNLEASH_ENVIRONMENT",
+  wonderwallEncryptionKey: "WONDERWALL_ENCRYPTION_KEY"
 });
 
 const PORT = process.env['PORT'] ?? 8080
 
 
+interface IJwt extends jwt.JwtPayload {
+  name: string;
+  NAVident: string;
+}
+
 const userMiddleware: RequestHandler = (req, res, next) => {
   const authHeader = req.headers.authorization
-  console.log(authHeader)
   if(!authHeader) {
-    res.send(403)
+    return res.status(403).send('missing jwt token')
+  } else {
+    jwt.verify(authHeader, env.wonderwallEncryptionKey, (err, decoded: IJwt) => {
+      if(err) return res.status(403).send(err)
+
+      const ident = decoded.NAVident
+      if(!ident) return res.status(403).send('Missing NAVIdent')
+      res.locals.NavIdent  = ident
+
+      console.log(`User recieved: ${ident}`)
+      next()
+    })
   }
-  next()
 }
 
 
@@ -38,7 +51,7 @@ const createServer = async () => {
 
   app.get("/api/features", userMiddleware, async (req, res) => {
     try{
-      const features = await getFeaturesForUser(userId, env.unleashEnvironment);
+      const features = await getFeaturesForUser(res.locals.NavIdent, env.unleashEnvironment);
       res.send(features);
     } catch (e) {
       res.status(500).send({error: 'Could not connect to Unleash', reason: e})
@@ -48,7 +61,7 @@ const createServer = async () => {
   app.post("/api/features", userMiddleware, async (req, res) => {
     const { featureName, strategyId, enabled } = req.body;
 
-    setToggle(env.unleashEnvironment, userId, featureName, strategyId, enabled)
+    setToggle(env.unleashEnvironment, res.locals.NavIdent, featureName, strategyId, enabled)
       .then((data) => {
         res.send(data);
       })
@@ -58,11 +71,11 @@ const createServer = async () => {
       });
   });
 
-  app.get('/health', (req, res) => {
+  app.get('/health', (_req, res) => {
     res.sendStatus(200)
   })
 
-  app.get('/*', (req, res) => {
+  app.get('/*', (_req, res) => {
     res.sendFile(DIR_NAME + '/public/index.html')
   })
 

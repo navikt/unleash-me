@@ -3,6 +3,7 @@ ingresses:
 namespace: pensjon-saksbehandling
 environment: dev
 team: pensjon-saksbehandling
+wonderwall_secret: azure-wonderwall-unleash-me-dev-eb3c9592
 env_variables: {
     UNLEASH_ENVIRONMENT: "development",
     UNLEASH_TAG: "unleash-me",
