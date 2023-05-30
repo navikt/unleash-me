@@ -1,10 +1,15 @@
-export interface IStragegyUserWithId {
-  userIds: string;
+interface IStrategyConstraints {
+  values: string[],
+  inverted: true,
+  operator: 'IN' | 'NOT_IN',
+  contextName: 'userId' | 'appName' | 'sessionId',
+  caseInsensitive: false
 }
 
 export interface IStragegy<T = any> {
+  inverted?: true,
   name: string;
-  constraints: [];
+  constraints: IStrategyConstraints[];
   parameters: T;
   sortOrder: number;
   id: string;

@@ -47,18 +47,14 @@ const Toggles = ({}) => {
   const updateToggle = async (
     featureName: string,
     stategyId: string,
-    enabled: boolean
+    enable: boolean,
   ) => {
-    return fetch("/api/features", {
-      method: "POST",
+    return fetch(`/api/features/${featureName}/${stategyId}`, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        featureName: featureName,
-        strategyId: stategyId,
-        enabled: enabled,
-      }),
+      body: JSON.stringify({ enable: enable})
     })
       .then((resp) => {
         if (resp.ok) {

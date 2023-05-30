@@ -17,6 +17,7 @@
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/jsonwebtoken": "^9.0.2",
+    "@types/lodash": "^4.14.195",
     "concurrently": "^8.0.1",
     "eslint": "^8.35.0",
     "prettier": "^2.8.4",
@@ -24,7 +25,6 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
-    "jsonwebtoken": "^9.0.0",
-    "jwks-rsa": "^3.0.1"
+    "lodash": "^4.17.21"
   }
 }

@@ -4,9 +4,9 @@ import {
   IFeature,
   IFeatureDescription,
   IStragegy,
-  IStragegyUserWithId,
 } from "./types";
 import { IUserFeature } from "unleash-me-common/types.js";
+import lodash from 'lodash'
 dotenv.config();
 
 const env = ensureEnv({
@@ -72,22 +72,25 @@ const filterFeatures =
     );
   };
 
+
 const createUserFeature =
   (userId: string, environment: string) =>
   (feature: IFeatureDescription): IUserFeature | undefined => {
-    const userWithIdStrategy = feature.environments
-      .find((env) => env.name === environment)
-      ?.strategies.find((strat) => strat.name === "userWithId");
 
-    if (!userWithIdStrategy) {
-      return;
+    const firstStrategyWithUserConstraint = lodash.first(feature.environments
+      .find((env) => env.name === environment)
+      ?.strategies.filter((strat) => strat.constraints.find((constraint) => constraint.contextName === 'userId')))
+
+    if (!firstStrategyWithUserConstraint) {
+      throw new Error("No suitable strategy found")
     }
-    const activeUsers = userWithIdStrategy.parameters.userIds.split(",");
+
+    const activeConstraint = firstStrategyWithUserConstraint.constraints.find((constraint) => constraint.contextName === 'userId')
 
     return {
       name: feature.name,
-      enabled: activeUsers.includes(userId),
-      stategyId: userWithIdStrategy.id,
+      enabled: activeConstraint.inverted ? !activeConstraint.values.includes(userId) : activeConstraint.values.includes(userId),
+      stategyId: firstStrategyWithUserConstraint.id,
       description: feature.description,
       type: feature.type
     };
@@ -118,55 +121,51 @@ export const updateStrategy = async (
   strategyId: string,
   updatedStrategy: IStragegy
 ) => {
-  console.log(updatedStrategy);
-  console.log(featureName);
   return projectFetch(
     `/features/${featureName}/environments/${enviroment}/strategies/${strategyId}`,
     { method: "PUT", body: JSON.stringify(updatedStrategy) }
   );
 };
 
-const isWithUserStrategy = (
-  strategy: IStragegy
-): strategy is IStragegy<IStragegyUserWithId> => {
-  return strategy.parameters?.userIds !== undefined;
-};
+const updateConstraint = async (
+  enviroment: string,
+  userId: string,
+  strategy: IStragegy,
+  enable: boolean
+) => {
+
+  const constraintValues = strategy.constraints[0].values
+  const newConstraintValues = (enable !== strategy.constraints[0].inverted ? lodash.uniq([...constraintValues, userId]) : constraintValues.filter((user) => userId != user))
+
+  const newStrategy: IStragegy = {
+    ...strategy,
+    constraints: [
+      {
+        ...strategy.constraints[0],
+        values: newConstraintValues
+      }
+    ]
+  }
+
+  console.log(newConstraintValues)
+  console.log(newStrategy)
+
+  return projectFetch(`/features/dokumentoversikt/environments/${enviroment}/strategies/${strategy.id}`, {
+    method: "PUT", body: JSON.stringify(newStrategy)
+  })
+}
 
 export const setToggle = async (
   enviroment: string,
   userId: string,
   featureName: string,
   strategyId: string,
-  enabled: boolean
+  enable: boolean
 ) => {
   const feature = await getFeature(featureName);
   const strategy = feature.environments
     .find((e) => e.name === enviroment)
     ?.strategies.find((s) => s.id === strategyId);
 
-  return new Promise((resolve, reject) => {
-    if (strategy && isWithUserStrategy(strategy)) {
-      const activeUsers = strategy.parameters.userIds
-        .split(",")
-        .filter((user) => !!user);
-
-      const newUsersInList = enabled
-        ? [...activeUsers, userId]
-        : activeUsers.filter((user) => user !== userId);
-
-      console.log("newUsersInList", newUsersInList);
-
-      updateStrategy(enviroment, featureName, strategyId, {
-        ...strategy,
-        parameters: {
-          ...strategy.parameters,
-          userIds: newUsersInList.join(","),
-        },
-      })
-        .then(resolve)
-        .catch(reject);
-    } else {
-      reject();
-    }
-  });
+  return updateConstraint(enviroment, userId, strategy, enable)
 };

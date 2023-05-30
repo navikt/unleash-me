@@ -24,9 +24,9 @@ interface IJwtPayload extends jwt.JwtPayload {
   name: string;
 }
 interface IJwt {
-    header: jwt.JwtHeader;
-    payload: IJwtPayload;
-    signature: string;
+  header: jwt.JwtHeader;
+  payload: IJwtPayload;
+  signature: string;
 }
 
 const jwkClient = jwks({
@@ -34,10 +34,16 @@ const jwkClient = jwks({
 })
 
 const userMiddleware: RequestHandler = async (req, res, next) => {
+  // For debugging
+  // res.locals.NavIdent  = 'bjorn'
+  // next()
+  // return
+
   const authHeader = req.headers.authorization
   if(!authHeader) {
     return res.status(403).send('missing jwt token')
   } else {
+
     const token = authHeader.split(' ')[1]
     const decodedToken = jwt.decode(token, { complete: true }) as IJwt
     const key = await jwkClient.getSigningKey(decodedToken.header.kid)
@@ -73,16 +79,18 @@ const createServer = async () => {
       const features = await getFeaturesForUser(res.locals.NavIdent, env.unleashEnvironment);
       res.send(features);
     } catch (e) {
-      res.status(500).send({error: 'Could not connect to Unleash', reason: e})
+      res.status(500).send({error: 'Could not connect to Unleash', reason: JSON.stringify(e)})
     }
   });
 
-  app.post("/api/features", userMiddleware, async (req, res) => {
-    const { featureName, strategyId, enabled } = req.body;
+  app.put("/api/features/:featureName/:strategyId", userMiddleware, async (req, res) => {
 
-    setToggle(env.unleashEnvironment, res.locals.NavIdent, featureName, strategyId, enabled)
-      .then((data) => {
-        res.send(data);
+    const { featureName, strategyId } = req.params
+    const { enable } = req.body
+
+    setToggle(env.unleashEnvironment, res.locals.NavIdent, featureName, strategyId, enable)
+      .then(() => {
+        res.sendStatus(201)
       })
       .catch((err) => {
         console.log(err)
