@@ -1,0 +1,13 @@
+ingresses:
+  - "https://unleash-me-dev.intern.nav.no"
+namespace: pensjon-saksbehandling
+environment: prod
+team: pensjon-saksbehandling
+azure_secret: azure-wonderwall-unleash-me-dev-eb3c9592
+env_variables:
+  {
+    UNLEASH_ENVIRONMENT: "production",
+    UNLEASH_TAG: "unleash-me",
+    UNLEASH_API: "https://teampensjon-unleash-api.nav.cloud.nais.io/api",
+    UNLEASH_PROJECT: "default",
+  }

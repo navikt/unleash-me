@@ -6,17 +6,21 @@ import path from "path";
 import { ensureEnv } from "./utils.js";
 import jwt from "jsonwebtoken";
 import jwks from "jwks-rsa";
+import logger from "./logger.js";
 
 dotenv.config();
 
+const NODE_ENV = process.env["NODE_ENV"];
 const DIR_NAME = path.resolve();
-
-const env = ensureEnv({
-  unleashEnvironment: "UNLEASH_ENVIRONMENT",
-  azureTennant: "AZURE_APP_TENANT_ID",
-});
-
 const PORT = process.env["PORT"] ?? 8080;
+
+const env = ensureEnv(
+  {
+    unleashEnvironment: "UNLEASH_ENVIRONMENT",
+    azureTennant: "AZURE_APP_TENANT_ID",
+  },
+  NODE_ENV ? ["azureTennant"] : []
+);
 
 interface IJwtPayload extends jwt.JwtPayload {
   NAVident: string;
@@ -33,33 +37,30 @@ const jwkClient = jwks({
 });
 
 const userMiddleware: RequestHandler = async (req, res, next) => {
-  // For debugging
-  // res.locals.NavIdent = "bjorn";
-  // next();
-  // return;
-
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(403).send("missing jwt token");
+  logger.log("info", { method: req.method, url: req.url });
+  if (NODE_ENV === "development") {
+    res.locals.NavIdent = "bjorn";
+    next();
   } else {
-    const token = authHeader.split(" ")[1];
-    const decodedToken = jwt.decode(token, { complete: true }) as IJwt;
-    const key = await jwkClient.getSigningKey(decodedToken.header.kid);
-    const sigingkey = key.getPublicKey();
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(403).send("missing jwt token");
+    } else {
+      const token = authHeader.split(" ")[1];
+      const decodedToken = jwt.decode(token, { complete: true }) as IJwt;
+      const key = await jwkClient.getSigningKey(decodedToken.header.kid);
+      const sigingkey = key.getPublicKey();
 
-    console.log(`NavId: ${decodedToken.payload.NAVident}`);
+      jwt.verify(token, sigingkey, (err) => {
+        if (err) return res.status(403).send(err);
+      });
 
-    jwt.verify(token, sigingkey, (err) => {
-      if (err) return res.status(403).send(err);
-    });
-
-    if (decodedToken) {
-      const ident = decodedToken.payload.NAVident;
-      if (!ident) return res.status(403).send("Missing NAVIdent");
-      res.locals.NavIdent = ident;
-
-      console.log(`User recieved: ${ident}`);
-      next();
+      if (decodedToken) {
+        const ident = decodedToken.payload.NAVident;
+        if (!ident) return res.status(403).send("Missing NAVIdent");
+        res.locals.NavIdent = ident;
+        next();
+      }
     }
   }
 };
@@ -122,6 +123,6 @@ const createServer = async () => {
 
 createServer().then(({ app }) => {
   app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
+    logger.log("info", `Server listening on port ${PORT}`);
   });
 });

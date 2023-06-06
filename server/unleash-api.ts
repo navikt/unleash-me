@@ -3,6 +3,7 @@ import { ensureEnv } from "./utils.js";
 import { IFeature, IFeatureDescription, IStragegy } from "./types";
 import { IUserFeature } from "unleash-me-common/types.js";
 import lodash from "lodash";
+import logger from "./logger.js";
 dotenv.config();
 
 const env = ensureEnv({
@@ -20,11 +21,13 @@ const defaultHeaders = {
 const projectFetch = async (endpoint: string, opts: RequestInit = {}) => {
   const url = `${env.unleashApi}/admin/projects/${env.unleashProject}${endpoint}`;
   const headers = { headers: defaultHeaders, ...opts };
+  logger.log("info", { url, method: "GET" });
   return await fetch(url, headers).then((resp) => {
     if (resp.ok) {
       return resp.json();
     } else {
       return resp.text().then((err) => {
+        logger.log("error", { url, message: err });
         throw new Error(err);
       });
     }

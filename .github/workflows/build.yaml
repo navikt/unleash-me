@@ -34,13 +34,20 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - vars: .nais/pensjon-saksbehandling-dev.yaml
+            cluster: dev-gcp
+            team: pensjon-saksbehandling
+
     steps:
-    - uses: actions/checkout@v3
-    - uses: nais/deploy/actions/deploy@v1
-      env:
-        APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-        CLUSTER: dev-gcp
-        RESOURCE: .nais/nais.yaml
-        VAR: image_tag=${{ github.sha }}
-        VARS: .nais/pensjon-saksbehandling-dev.yaml
-        TEAM: pensjon-saksbehandling
+      - uses: actions/checkout@v3
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: ${{ matrix.cluster }}
+          RESOURCE: .nais/nais.yaml
+          VAR: image_tag=${{ github.sha }}
+          VARS: ${{ matrix.vars }}
+          TEAM: ${{ matrix.team }}
