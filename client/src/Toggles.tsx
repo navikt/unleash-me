@@ -2,15 +2,9 @@ import { partition } from "lodash";
 import { useEffect, useMemo, useReducer, useState } from "react";
 import { IUserFeature } from "unleash-me-common/types";
 import Toggle from "./Toggle";
-import { Heading } from "@navikt/ds-react";
-import { TestFlaskIcon } from "@navikt/aksel-icons";
-
-enum LoadingState {
-  "LOADING",
-  "SHOULD_FETCH",
-  "SUCCESS",
-  "FAIL",
-}
+import { BodyShort, Heading } from "@navikt/ds-react";
+import { LoadingState } from "./util";
+import LoadingWrapper from "./components/loading-wrapper";
 
 interface IState {
   loadingState: LoadingState;
@@ -78,26 +72,9 @@ const Toggles = ({}) => {
   };
 
   return (
-    <div>
-      {features.map((feature) => (
-        <Toggle
-          key={feature.name}
-          enabled={feature.enabled}
-          stategyId={feature.stategyId}
-          name={feature.name}
-          onChangeFeature={updateToggle}
-          type={feature.type}
-        >
-          {feature.description}
-        </Toggle>
-      ))}
-
-      <Heading level="1" size="small">
-        <TestFlaskIcon title="a11y-title" />
-        Eksperiment
-      </Heading>
-      {experiment.length > 0 &&
-        experiment.map((feature) => (
+    <LoadingWrapper loadingState={state.loadingState}>
+      <div>
+        {features.map((feature) => (
           <Toggle
             key={feature.name}
             enabled={feature.enabled}
@@ -109,7 +86,32 @@ const Toggles = ({}) => {
             {feature.description}
           </Toggle>
         ))}
-    </div>
+
+        {experiment.length > 0 && (
+          <div>
+            <Heading level="2" size="small">
+              Eksperiment
+            </Heading>
+            <BodyShort>
+              Funksjoner som du kan teste før de er helt ferdige
+            </BodyShort>
+
+            {experiment.map((feature) => (
+              <Toggle
+                key={feature.name}
+                enabled={feature.enabled}
+                stategyId={feature.stategyId}
+                name={feature.name}
+                onChangeFeature={updateToggle}
+                type={feature.type}
+              >
+                {feature.description}
+              </Toggle>
+            ))}
+          </div>
+        )}
+      </div>
+    </LoadingWrapper>
   );
 };
 

@@ -7,7 +7,7 @@ interface IProps {
   name: string;
   stategyId: string;
   children: string;
-  type: IUserFeature['type']
+  type: IUserFeature["type"];
   onChangeFeature: (
     featureName: string,
     stategyId: string,
