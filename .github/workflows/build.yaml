@@ -30,7 +30,7 @@ jobs:
             ${{ env.docker_image }}:${{ github.sha }}
             ${{ env.docker_image }}:latest
   deploy:
-    name: Deploy pensjons saksbehandling dev GCP
+    name: Deploy unleash-me
     needs: build
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -44,6 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: nais/deploy/actions/deploy@v1
+        name: "Deploy to cluster ${{ matrix.cluster }} for team ${{ matrix.team }}"
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: ${{ matrix.cluster }}
