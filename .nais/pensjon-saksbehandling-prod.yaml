@@ -3,7 +3,7 @@ ingresses:
 namespace: pensjon-saksbehandling
 environment: prod
 team: pensjon-saksbehandling
-azure_secret: azure-wonderwall-unleash-me-dev-eb3c9592
+azure_secret: azure-unleash-me-prod-76d6f742-2023-23
 env_variables:
   {
     UNLEASH_ENVIRONMENT: "production",
