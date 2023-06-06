@@ -1,6 +1,9 @@
-import { useEffect, useReducer } from "react";
+import { partition } from "lodash";
+import { useEffect, useMemo, useReducer, useState } from "react";
 import { IUserFeature } from "unleash-me-common/types";
 import Toggle from "./Toggle";
+import { Heading } from "@navikt/ds-react";
+import { TestFlaskIcon } from "@navikt/aksel-icons";
 
 enum LoadingState {
   "LOADING",
@@ -28,6 +31,13 @@ const stateReducer: IReducer = (state, action) => {
 const Toggles = ({}) => {
   const [state, reducer] = useReducer(stateReducer, initialState);
 
+  const [experiment, features] = useMemo(() => {
+    return partition(
+      state.features,
+      (feature) => feature.type === "experiment"
+    );
+  }, [state.features]);
+
   useEffect(() => {
     if (state.loadingState === LoadingState.SHOULD_FETCH) {
       fetch("/api/features")
@@ -47,14 +57,14 @@ const Toggles = ({}) => {
   const updateToggle = async (
     featureName: string,
     stategyId: string,
-    enable: boolean,
+    enable: boolean
   ) => {
     return fetch(`/api/features/${featureName}/${stategyId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ enable: enable})
+      body: JSON.stringify({ enable: enable }),
     })
       .then((resp) => {
         if (resp.ok) {
@@ -69,7 +79,7 @@ const Toggles = ({}) => {
 
   return (
     <div>
-      {state.features.map((feature) => (
+      {features.map((feature) => (
         <Toggle
           key={feature.name}
           enabled={feature.enabled}
@@ -81,6 +91,24 @@ const Toggles = ({}) => {
           {feature.description}
         </Toggle>
       ))}
+
+      <Heading level="1" size="small">
+        <TestFlaskIcon title="a11y-title" />
+        Eksperiment
+      </Heading>
+      {experiment.length > 0 &&
+        experiment.map((feature) => (
+          <Toggle
+            key={feature.name}
+            enabled={feature.enabled}
+            stategyId={feature.stategyId}
+            name={feature.name}
+            onChangeFeature={updateToggle}
+            type={feature.type}
+          >
+            {feature.description}
+          </Toggle>
+        ))}
     </div>
   );
 };
