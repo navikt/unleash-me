@@ -33,7 +33,11 @@ const Toggles = ({}) => {
   }, [state.features]);
 
   useEffect(() => {
-    if (state.loadingState === LoadingState.SHOULD_FETCH) {
+    if (
+      [LoadingState.SHOULD_FETCH, LoadingState.SHOULD_SILENT_FETCH].includes(
+        state.loadingState
+      )
+    ) {
       fetch("/api/features")
         .then((resp: Response) => {
           if (resp.ok) {
@@ -62,13 +66,15 @@ const Toggles = ({}) => {
     })
       .then((resp) => {
         if (resp.ok) {
-          reducer({ loadingState: LoadingState.SHOULD_FETCH });
+          reducer({ loadingState: LoadingState.SHOULD_SILENT_FETCH });
         }
       })
       .catch((e) => {
         console.log(e);
       })
-      .finally(() => reducer({ loadingState: LoadingState.SHOULD_FETCH }));
+      .finally(() =>
+        reducer({ loadingState: LoadingState.SHOULD_SILENT_FETCH })
+      );
   };
 
   return (
