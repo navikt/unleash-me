@@ -31,9 +31,17 @@ const Toggle: React.FC<IProps> = ({
     );
   };
 
+  const [title, description] = children.split(";");
+
   return (
-    <Switch loading={isLoading} defaultChecked={enabled} onClick={onClick}>
-      {children}
+    <Switch
+      className="toggle"
+      loading={isLoading}
+      defaultChecked={enabled}
+      onClick={onClick}
+      description={description}
+    >
+      {title}
     </Switch>
   );
 };

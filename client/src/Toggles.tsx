@@ -94,11 +94,12 @@ const Toggles = ({}) => {
         ))}
 
         {experiment.length > 0 && (
-          <div>
-            <Heading level="2" size="small">
+          <div className="experiment">
+            <Heading level="2" size="xsmall">
               Eksperiment
             </Heading>
-            <BodyShort>
+
+            <BodyShort size="small">
               Funksjoner som du kan teste før de er helt ferdige
             </BodyShort>
 

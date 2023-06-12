@@ -7,18 +7,16 @@ import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 function App() {
   return (
     <div className="App">
-      <Heading level="1" size="medium">
+      <Heading level="1" size="small">
         Funksjoner
       </Heading>
-      <BodyShort>Her kan du skru av/på funksjoner</BodyShort>
+
+      <BodyShort size="small">
+        Her kan du skru av/på funksjoner. Det kan ta opp til ett minutt før
+        endringen trer i kraft. Da må du oppdatere siden.
+      </BodyShort>
 
       <Toggles />
-
-      <div className="alert">
-        <Alert variant="info">
-          Det kan ta noen minutter før endringer trer i kraft.
-        </Alert>
-      </div>
     </div>
   );
 }
