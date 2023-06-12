@@ -172,6 +172,7 @@ const updateConstraint = async (
       user: userId,
       unleashFeatureName: featureName,
       unleashEnabled: enable,
+      unleashValue: enable ? 1 : -1,
       message: "Unleash toggle changed",
     });
   });
