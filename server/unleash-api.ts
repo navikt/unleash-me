@@ -170,7 +170,8 @@ const updateConstraint = async (
   ).then(() => {
     logger.log("info", {
       user: userId,
-      message: `Turned ${enable ? "on" : "off"} feature ${featureName}`,
+      featureName: featureName,
+      enabled: enable,
     });
   });
 };
