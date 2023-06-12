@@ -170,8 +170,9 @@ const updateConstraint = async (
   ).then(() => {
     logger.log("info", {
       user: userId,
-      featureName: featureName,
-      enabled: enable,
+      unleashFeatureName: featureName,
+      unleashEnabled: enable,
+      message: "Unleash toggle changed",
     });
   });
 };
