@@ -167,7 +167,12 @@ const updateConstraint = async (
       method: "PUT",
       body: JSON.stringify(newStrategy),
     }
-  );
+  ).then(() => {
+    logger.log("info", {
+      user: userId,
+      message: `Turned ${enable ? "on" : "off"} feature ${featureName}`,
+    });
+  });
 };
 
 export const setToggle = async (
