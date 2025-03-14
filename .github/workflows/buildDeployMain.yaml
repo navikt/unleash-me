@@ -31,15 +31,6 @@ jobs:
           echo "TIME=$TIME" >> $GITHUB_OUTPUT
           echo "VERSION=$TIME-$COMMIT" >> $GITHUB_OUTPUT
 
-      - name: NAIS login
-        if: ${{ github.actor != 'dependabot[bot]' }}
-        uses: nais/login@v0
-        id: login
-        with:
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-          team: pensjon-saksbehandling
-
       - name: Docker meta
         if: ${{ github.actor != 'dependabot[bot]' }}
         id: meta
@@ -50,14 +41,11 @@ jobs:
           tags: |
             type=sha,prefix=${{ steps.version.outputs.time }}-,priority=9002
 
-      - name: Build and push
-        if: ${{ github.actor != 'dependabot[bot]' }}
-        id: build_push
-        uses: docker/build-push-action@v6
+      - name: Build and push image
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
         with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          team: pensjon-saksbehandling
 
       - name: Set outputs
         if: ${{ github.actor != 'dependabot[bot]' }}
@@ -85,11 +73,10 @@ jobs:
 #            team: pensjon-saksbehandling
     steps:
       - uses: actions/checkout@v3
-      - uses: nais/deploy/actions/deploy@v1
+      - uses: nais/deploy/actions/deploy@v2
         name: "Deploy to cluster ${{ matrix.cluster }} for team ${{ matrix.team }}"
         env:
           IMAGE: "${{ needs.build.outputs.image }}"
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: ${{ matrix.cluster }}
           RESOURCE: .nais/nais.yaml
           VAR: image_tag=${{ github.sha }}
