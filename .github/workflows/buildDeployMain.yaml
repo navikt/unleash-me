@@ -22,6 +22,15 @@ jobs:
         with:
           node-version: 18
 
+      - name: Set version
+        id: version
+        shell: bash
+        run: |
+          TIME=$(TZ="Europe/Oslo" date +%Y.%m.%d-%H.%M)
+          COMMIT=$(git rev-parse --short=12 HEAD)
+          echo "TIME=$TIME" >> $GITHUB_OUTPUT
+          echo "VERSION=$TIME-$COMMIT" >> $GITHUB_OUTPUT
+
       - name: NAIS login
         if: ${{ github.actor != 'dependabot[bot]' }}
         uses: nais/login@v0
@@ -79,6 +88,7 @@ jobs:
       - uses: nais/deploy/actions/deploy@v1
         name: "Deploy to cluster ${{ matrix.cluster }} for team ${{ matrix.team }}"
         env:
+          IMAGE: "${{ needs.build.outputs.image }}"
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: ${{ matrix.cluster }}
           RESOURCE: .nais/nais.yaml
