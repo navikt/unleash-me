@@ -9,6 +9,7 @@ metadata:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       more_set_headers "X-Forwarded-For $http_x_forwarded_for";
 spec:
+  image: {{ image }}
   port: 8080
   ingresses:
     {{#each ingresses as |url|}}

@@ -89,6 +89,5 @@ jobs:
           IMAGE: "${{ needs.build.outputs.image }}"
           CLUSTER: ${{ matrix.cluster }}
           RESOURCE: .nais/nais.yaml
-          VAR: image_tag=${{ github.sha }}
           VARS: ${{ matrix.vars }}
           TEAM: ${{ matrix.team }}
