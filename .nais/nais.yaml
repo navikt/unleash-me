@@ -5,9 +5,9 @@ metadata:
   namespace: {{ namespace }}
   labels:
     team: {{ team }}
-annotations:
-  nginx.ingress.kubernetes.io/configuration-snippet: |
-    more_set_headers "X-Forwarded-For $http_x_forwarded_for";
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Forwarded-For $http_x_forwarded_for";
 spec:
   image: "ghcr.io/navikt/unleash-me:{{ image_tag }}"
   port: 8080
