@@ -68,9 +68,9 @@ jobs:
     permissions:
       contents: "read"
       id-token: "write"
-    name: Deploy unleash-me
-    needs: build
     if: github.ref == 'refs/heads/main'
+    needs: build
+    name: Deploy unleash-me
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -82,7 +82,7 @@ jobs:
 #            cluster: prod-gcp
 #            team: pensjon-saksbehandling
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v2
         name: "Deploy to cluster ${{ matrix.cluster }} for team ${{ matrix.team }}"
         env:
