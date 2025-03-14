@@ -1,0 +1,87 @@
+name: "Build"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    permissions:
+      packages: write
+      contents: read
+      id-token: write
+    name: Build and publish docker container
+    runs-on: ubuntu-latest
+    outputs:
+      image: "${{ steps.set-outputs.outputs.IMAGE }}"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 18
+
+      - name: NAIS login
+        if: ${{ github.actor != 'dependabot[bot]' }}
+        uses: nais/login@v0
+        id: login
+        with:
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          team: pensjon-saksbehandling
+
+      - name: Docker meta
+        if: ${{ github.actor != 'dependabot[bot]' }}
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ github.repository_owner}}
+          tags: |
+            type=sha,prefix=${{ steps.version.outputs.time }}-,priority=9002
+
+      - name: Build and push
+        if: ${{ github.actor != 'dependabot[bot]' }}
+        id: build_push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+
+      - name: Set outputs
+        if: ${{ github.actor != 'dependabot[bot]' }}
+        shell: bash
+        id: set-outputs
+        run: |
+          echo "IMAGE=${{ fromJSON(steps.meta.outputs.json).tags[0] }}" >> $GITHUB_OUTPUT
+
+  deploy:
+    permissions:
+      contents: "read"
+      id-token: "write"
+    name: Deploy unleash-me
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - vars: .nais/pensjon-saksbehandling-dev.yaml
+            cluster: dev-gcp
+            team: pensjon-saksbehandling
+#          - vars: .nais/pensjon-saksbehandling-prod.yaml
+#            cluster: prod-gcp
+#            team: pensjon-saksbehandling
+    steps:
+      - uses: actions/checkout@v3
+      - uses: nais/deploy/actions/deploy@v1
+        name: "Deploy to cluster ${{ matrix.cluster }} for team ${{ matrix.team }}"
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: ${{ matrix.cluster }}
+          RESOURCE: .nais/nais.yaml
+          VAR: image_tag=${{ github.sha }}
+          VARS: ${{ matrix.vars }}
+          TEAM: ${{ matrix.team }}

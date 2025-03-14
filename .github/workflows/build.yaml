@@ -1,9 +1,6 @@
 name: "Build"
 
-on:
-  push:
-    branches:
-      - main
+on: workflow_dispatch
 
 env:
   docker_image: ghcr.io/${{ github.repository }}
