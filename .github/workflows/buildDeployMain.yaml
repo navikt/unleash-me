@@ -31,6 +31,13 @@ jobs:
           echo "TIME=$TIME" >> $GITHUB_OUTPUT
           echo "VERSION=$TIME-$COMMIT" >> $GITHUB_OUTPUT
 
+      - name: NAIS login
+        if: ${{ github.actor != 'dependabot[bot]' }}
+        uses: nais/login@v0
+        id: login
+        with:
+          team: pensjon-saksbehandling
+
       - name: Docker meta
         if: ${{ github.actor != 'dependabot[bot]' }}
         id: meta
@@ -41,11 +48,14 @@ jobs:
           tags: |
             type=sha,prefix=${{ steps.version.outputs.time }}-,priority=9002
 
-      - name: Build and push image
-        uses: nais/docker-build-push@v0
-        id: docker-build-push
+      - name: Build and push
+        if: ${{ github.actor != 'dependabot[bot]' }}
+        id: build_push
+        uses: docker/build-push-action@v6
         with:
-          team: pensjon-saksbehandling
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
 
       - name: Set outputs
         if: ${{ github.actor != 'dependabot[bot]' }}
