@@ -78,9 +78,9 @@ jobs:
           - vars: .nais/pensjon-saksbehandling-dev.yaml
             cluster: dev-gcp
             team: pensjon-saksbehandling
-          - vars: .nais/pensjon-saksbehandling-prod.yaml
-            cluster: prod-gcp
-            team: pensjon-saksbehandling
+#          - vars: .nais/pensjon-saksbehandling-prod.yaml
+#            cluster: prod-gcp
+#            team: pensjon-saksbehandling
     steps:
       - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v2

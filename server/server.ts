@@ -80,6 +80,10 @@ const createServer = async () => {
       );
       res.send(features);
     } catch (e) {
+      logger.log("error", {
+        message: "Could not connect to Unleash",
+        error: e,
+      });
       res.status(500).send({
         error: "Could not connect to Unleash",
         reason: JSON.stringify(e),
