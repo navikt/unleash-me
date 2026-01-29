@@ -1,5 +1,6 @@
 ingresses:
   - "https://unleash-me.intern.dev.nav.no"
+  - "https://unleash-me.ansatt.dev.nav.no"
 namespace: pensjon-saksbehandling
 environment: dev
 team: pensjon-saksbehandling
